@@ -16,7 +16,7 @@ class MafiaBot(commands.Cog):
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
             if game in self.games:
-                await ctx.send("{} has already been created! Type '--join {}' to join the game.".format(game, ctx.message.author, game))
+                await ctx.send("{} has already been created! Type '--join {}' to join the game.".format(game, game))
             else:
                 self.games[game] = [ctx.message.author]
                 self.open_games.add(game)
@@ -37,12 +37,16 @@ class MafiaBot(commands.Cog):
 
     @commands.command(pass_context=True)
     async def start(self, ctx):
-        if not isinstance(ctx.channel, discord.channel.DMChannel):
+        if not isinstance(ctx.channel, discord.channel.DMChannel) and ctx.message.author.voice:
             game = ctx.message.content.split(" ")[1]
-            if game in self.games:
+            if game not in self.open_games:
+                await ctx.send("{} has already been started!".format(game))
+            elif game in self.games:
                 #TODO Make sure dead games (ie, creator hasn't ended it) are removed
                 if ctx.message.author == self.games[game][0]:
                     self.open_games.remove(game)
+                    channel = ctx.message.author.voice.channel
+                    await channel.connect()
                     await ctx.send("{} has been started!!".format(game))
                     #TODO get the game actually started
                 else:
@@ -50,7 +54,7 @@ class MafiaBot(commands.Cog):
             else:
                 await ctx.send("{} doesn't exist!".format(game))
         else:
-            await ctx.send("Please join a server to use this command.")
+            await ctx.send("Please join a server voice chat to use this command.")
 
     @commands.command(pass_context=True)
     async def kill(self, ctx):
