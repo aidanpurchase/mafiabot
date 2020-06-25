@@ -44,17 +44,8 @@ class Game:
         else:
             return players
 
-    def remove_player(self, player):
-        for _player in self.setup["townie"]:
-            if player == _player:
-                self.num_townies -= 1
-
-        for role, _player in self.setup.items():
-            if player == _player:
-                if role in town_roles:
-                    self.num_townies -= 1
-                else:
-                    self.num_mafia -= 1
+    def kill_player(self, gameID, player):
+        GameList.instance.kill_player(gameID, player)       
 
     def has_finished(self):
         if self.num_mafia <= 0:
