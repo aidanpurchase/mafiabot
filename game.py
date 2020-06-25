@@ -47,10 +47,24 @@ class Game:
     def kill_player(self, gameID, player):
         GameList.instance.kill_player(gameID, player)       
 
-    def has_finished(self):
-        if self.num_mafia <= 0:
-            return "Town"
-        elif self.num_townies <= 0:
-            return "Mafia"
+    def who_has_won(self, gameID):
+        num_townies = 0
+        num_mafia = 0
+
+        roles = GameList.instance.get_roles(gameID)
+        for role_pair in roles:
+            role, _ = role_pair
+            
+            if role in town_roles:
+                num_townies += 1
+            elif role in mafia_roles:
+                num_mafia += 1
+            else:
+                print("Error!", role, "doesn't exist!")
+
+        if num_townies == 0:
+            return "mafia"
+        elif num_mafia == 0:
+            return "townies"
         else:
             return None
