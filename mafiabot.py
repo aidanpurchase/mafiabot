@@ -1,9 +1,12 @@
 import discord
 from discord.ext import commands
+from game import Game
+from gamelist import GameList
 
 class MafiaBot(commands.Cog):
     def __init__(self, client):
         self.client = client
+        GameList.instance = GameList()
         self.games = {}
         self.open_games = set([])
 
@@ -74,6 +77,10 @@ class MafiaBot(commands.Cog):
                 await ctx.send("{} doesn't exist!".format(game))
         else:
             await ctx.send("Please join a server to use this command.")
+
+
+    async def run(self, game):
+        players = len(self.games[game])
 
     @commands.command(pass_context=True)
     async def kill(self, ctx):
