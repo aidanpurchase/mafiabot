@@ -30,7 +30,7 @@ class Game:
 
         return gameID
 
-    def get_players(self, gameID, role):
+    def get_player_IDs(self, gameID, role):
         roles = GameList.instance.get_roles(gameID)
         players = []
         
