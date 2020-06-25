@@ -32,7 +32,9 @@ class GameList:
     def create_game(self, name, member):
         self.db.execute("INSERT INTO games(name, creatorID, status) VALUES (?, ?, ?)",
                         [name, member.id, "open"])
+        gameID = self.db.lastrowid
         self.db.commit()
+        return gameID
 
     def create_attendance(self, member, gameID, role):
         self.db.execute("""INSERT INTO attendances(playerID, gameID, condition, role) 
