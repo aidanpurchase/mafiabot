@@ -6,7 +6,6 @@ from gamelist import GameList
 class MafiaBot(commands.Cog):
     def __init__(self, client):
         self.client = client
-        GameList.instance = GameList()
         self.games = {}
         self.open_games = set([])
 

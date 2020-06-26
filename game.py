@@ -5,15 +5,15 @@ town_roles = ["inspector","doctor","drunk","bodyguard"]
 mafia_roles = ["boss","disabler","stalker"]
 
 class Game:
-    instance = None
-
     def __init__(self):
         GameList.instance = GameList()
-        
-    def new_game(self, name, players, num_mafia, num_roles):
+    
+    def create_game(self, name, author):
         author = players[0]
         gameID = GameList.instance.create_game(name, author)
+        return gameID
 
+    def setup_game(self, gameID, players, num_mafia, num_roles):
         shuffled_players = random.shuffle(players)
         num_townies = len(players) - num_mafia
 
@@ -26,9 +26,7 @@ class Game:
             player = shuffled_players[num_mafia+i]
             GameList.instance.create_attendance(player, gameID, role)
         for player in shuffled_players[num_mafia+num_roles:]:
-            GAmeList.instance.craete_attendance(player, gameID, "townie")
-
-        return gameID
+            GameList.instance.craete_attendance(player, gameID, "townie")
 
     def get_player_IDs(self, gameID, role):
         roles = GameList.instance.get_roles(gameID)
