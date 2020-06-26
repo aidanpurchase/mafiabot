@@ -62,6 +62,16 @@ class GameList:
 
         return results
 
+    def get_all_roles(self, gameID):
+        c = self.db.cursor()
+        c.execute("SELECT role, playerID FROM attendances WHERE gameID=?", [gameID])
+        results = c.fetchall()
+
+        if len(results) < 1:
+            return None
+
+        return results
+
     def get_role(self, gameID, member):
         c = self.db.cursor()
         c.execute("SELECT role FROM attendances WHERE gameID=? AND playerID=?", [gameID, member.id])

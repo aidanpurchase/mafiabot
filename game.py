@@ -28,8 +28,11 @@ class Game:
         for player in shuffled_players[num_mafia+num_roles:]:
             GameList.instance.craete_attendance(player, gameID, "townie")
 
-    def get_player_IDs(self, gameID, role):
-        roles = GameList.instance.get_roles(gameID)
+    def get_player_IDs(self, gameID, role, dead=False):
+        if not dead:
+            roles = GameList.instance.get_roles(gameID)
+        else:
+            roles = GameList.instance.get_all_roles(gameID)
         players = []
         
         for role_pair in roles:
