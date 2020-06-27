@@ -48,6 +48,11 @@ class GameList:
                             [game_name, member.id])
         self.db.commit()
 
+    def delete_game(self, game_name):     
+        self.db.execute("DELETE FROM attendances WHERE gameName=?", [game_name])
+        self.db.execute("DELETE FROM games WHERE gameName=?", [game_name])
+        self.db.commit()
+
     def get_roles(self, game_name):
         c = self.db.cursor()
         c.execute("SELECT role, playerID FROM attendances WHERE gameName=? AND condition='alive'",
