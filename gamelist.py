@@ -93,6 +93,16 @@ class GameList:
         row = results[0]
         return row[0]
 
+    def get_games(self):
+        c = self.db.cursor()
+        c.execute("SELECT gameName FROM games")
+        results = c.fetchall()
+
+        if len(results) < 1:
+            return None
+
+        return [name for result in results for name in result]
+
     def get_open_games(self):
         c = self.db.cursor()
         c.execute("SELECT gameName FROM games WHERE status='open'")
