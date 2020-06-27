@@ -14,13 +14,12 @@ class GameList:
             print(e)
         
         sql_create_games_table = """CREATE TABLE IF NOT EXISTS games (
-                                        gameID INTEGER NOT NULL PRIMARY KEY,
-                                        name TEXT NOT NULL,
+                                        gameName TEXT NOT NULL PRIMARY KEY,
                                         creatorID INTEGER NOT NULL
                                         status TEXT NOT NULL);"""
         sql_create_attendances_table = """CREATE TABLE IF NOT EXISTS attendances (
                                             playerID INTEGER NOT NULL PRIMARY KEY,
-                                            FOREIGN KEY (gameID) REFERENCES games (gameID),
+                                            FOREIGN KEY (gameName) REFERENCES games (gameName),
                                             condition TEXT NOT NULL,
                                             role TEXT NOT NULL);"""
         if self.db is not None:
@@ -30,31 +29,29 @@ class GameList:
             print("Error! cannot create the database connection.")
 
     def create_game(self, name, member):
-        self.db.execute("INSERT INTO games(name, creatorID, status) VALUES (?, ?, ?)",
-                        [name, member.id, "open"])
-        gameID = self.db.lastrowid
-        self.db.commit()
-        return gameID
-
-    def create_attendance(self, member, gameID, role):
-        self.db.execute("""INSERT INTO attendances(playerID, gameID, condition, role) 
-                            VALUES (?, ?, ?, ?)""",
-                            [member.id, gameID, "alive", role])
+        self.db.execute("INSERT INTO games(gameName, creatorID, status) VALUES (?, ?, 'open')",
+                        [name, member.id])
         self.db.commit()
 
-    def close_game(self, gameID):
-        self.db.execute("UPDATE games SET status=? WHERE gameID=?", ["closed", gameID])
+    def create_attendance(self, member, game_name, role):
+        self.db.execute("""INSERT INTO attendances(playerID, gameName, condition, role) 
+                            VALUES (?, ?, 'alive', ?)""",
+                            [member.id, game_name, role])
         self.db.commit()
 
-    def kill_player(self, gameID, member):
-        self.db.execute("UPDATE attendances SET condition=? WHERE gameID=? AND playerID=?",
-                            ["dead", gameID, member.id])
+    def close_game(self, game_name):
+        self.db.execute("UPDATE games SET status='closed' WHERE gameName=?", [game_name])
         self.db.commit()
 
-    def get_roles(self, gameID):
+    def kill_player(self, game_name, member):
+        self.db.execute("UPDATE attendances SET condition='dead' WHERE gameName=? AND playerID=?",
+                            [game_name, member.id])
+        self.db.commit()
+
+    def get_roles(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT role, playerID FROM attendances WHERE gameID=? AND condition='alive'",
-                    [gameID])
+        c.execute("SELECT role, playerID FROM attendances WHERE gameName=? AND condition='alive'",
+                    [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
@@ -62,9 +59,9 @@ class GameList:
 
         return results
 
-    def get_all_roles(self, gameID):
+    def get_all_roles(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT role, playerID FROM attendances WHERE gameID=?", [gameID])
+        c.execute("SELECT role, playerID FROM attendances WHERE gameName=?", [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
@@ -72,9 +69,10 @@ class GameList:
 
         return results
 
-    def get_role(self, gameID, member):
+    def get_role(self, game_name, member):
         c = self.db.cursor()
-        c.execute("SELECT role FROM attendances WHERE gameID=? AND playerID=?", [gameID, member.id])
+        c.execute("SELECT role FROM attendances WHERE gameName=? AND playerID=?",
+                    [game_name, member.id])
         results = c.fetchall()
 
         if len(results) < 1:
@@ -83,10 +81,10 @@ class GameList:
         row = results[0]
         return row[0]
 
-    def get_condition(self, gameID, member):
+    def get_condition(self, game_name, member):
         c = self.db.cursor()
-        c.execute("SELECT condition FROM attendances WHERE gameID=? AND playerID=?",
-                    [gameID, member.id])
+        c.execute("SELECT condition FROM attendances WHERE gameName=? AND playerID=?",
+                    [game_name, member.id])
         results = c.fetchall()
 
         if len(results) < 1:
@@ -95,9 +93,9 @@ class GameList:
         row = results[0]
         return row[0]
 
-    def get_status(self, gameID):
+    def get_status(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT status FROM games WHERE gameID=?", [gameID])
+        c.execute("SELECT status FROM games WHERE gameName=?", [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
@@ -106,9 +104,9 @@ class GameList:
         row = results[0]
         return row[0]
 
-    def get_creator(self, gameID):
+    def get_creator(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT creatorID FROM games WHERE gameID=?", [gameID])
+        c.execute("SELECT creatorID FROM games WHERE gameName=?", [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
