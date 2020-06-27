@@ -53,26 +53,26 @@ class GameList:
         self.db.execute("DELETE FROM games WHERE gameName=?", [game_name])
         self.db.commit()
 
-    def get_roles(self, game_name):
+    def get_alive_IDs(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT role, playerID FROM attendances WHERE gameName=? AND condition='alive'",
+        c.execute("SELECT playerID FROM attendances WHERE gameName=? AND condition='alive'",
                     [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
             return None
 
-        return results
+        return [playerID for result in results for playerID in result]
 
-    def get_all_roles(self, game_name):
+    def get_all_IDs(self, game_name):
         c = self.db.cursor()
-        c.execute("SELECT role, playerID FROM attendances WHERE gameName=?", [game_name])
+        c.execute("SELECT playerID FROM attendances WHERE gameName=?", [game_name])
         results = c.fetchall()
 
         if len(results) < 1:
             return None
 
-        return results
+        return [playerID for result in results for playerID in result]
 
     def get_role(self, game_name, member):
         c = self.db.cursor()
