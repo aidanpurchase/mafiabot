@@ -6,8 +6,7 @@ from gamelist import GameList
 class MafiaBot(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.games = {}
-        self.open_games = set([])
+        GameList.instance = GameList()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -17,11 +16,11 @@ class MafiaBot(commands.Cog):
     async def create(self, ctx):
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
-            if game in self.games:
+            games = GameList.instance.get_games()
+            if game in games:
                 await ctx.send("{} has already been created! Type '--join {}' to join the game.".format(game, game))
             else:
-                self.games[game] = [ctx.message.author]
-                self.open_games.add(game)
+            `   GameList.instance.create_game(game, ctx.author)
                 await ctx.send("{} has been created by {}! Type '--join {}' to join the game.".format(game, ctx.message.author, game))
         else:
             await ctx.send("Please join a server to use this command.")
@@ -30,8 +29,9 @@ class MafiaBot(commands.Cog):
     async def join(self, ctx):
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
-            if game in self.games and self.open_games:
-                self.games[game].append(self.message.author)
+            open_games = GameList.instance.get_open_games()
+            if game in open_games:
+                #TODO figure how to add attendees before starting
             else:
                 await ctx.send("{} is unable to join the game. Try again later.".format(ctx.message.author))
         else:
@@ -41,12 +41,15 @@ class MafiaBot(commands.Cog):
     async def start(self, ctx):
         if not isinstance(ctx.channel, discord.channel.DMChannel) and ctx.message.author.voice:
             game = ctx.message.content.split(" ")[1]
-            if game not in self.open_games:
+            games = GameList.instance.get_games()
+            open_games = GameList.instance.get_open_games()
+            if game in open_games:
                 await ctx.send("{} has already been started!".format(game))
-            elif game in self.games:
-                #TODO Make sure dead games (ie, creator hasn't ended it) are removed
-                if ctx.message.author == self.games[game][0]:
-                    self.open_games.remove(game)
+            elif game in games:
+                creatorID = GameList.instance.get_creator(game)
+                creator = ctx.message.guild.get_member(creatorID)
+                if ctx.message.author == creator:
+                    GameList.instance.close_game(game)
                     channel = ctx.message.author.voice.channel
                     await channel.connect()
                     await ctx.send("{} has been started!!".format(game))
@@ -62,13 +65,12 @@ class MafiaBot(commands.Cog):
     async def delete(self, ctx):
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
-            if game in self.games:
-                if ctx.message.author == self.games[game][0]:
-                    self.games.pop(game, None)
-                    try:
-                        self.open_games.remove(game) # A game can be ended whether it is open or not
-                    except:
-                        pass 
+            games = GameList.instance.get_games()
+            if game in games:
+                creatorID = GameList.instance.get_creator(game)
+                creator = ctx.message.guild.get_member(creatorID)
+                if ctx.message.author == creator:
+                    GameList.instance.delete_game(game)
                     await ctx.send("{} was been deleted!".format(game))
                 else:
                     await ctx.send("{} doesn't have permission to delete {}".format(ctx.message.author, game))
@@ -79,7 +81,7 @@ class MafiaBot(commands.Cog):
 
 
     async def run(self, game):
-        players = len(self.games[game])
+        pass
 
     @commands.command(pass_context=True)
     async def kill(self, ctx):
@@ -107,12 +109,6 @@ class MafiaBot(commands.Cog):
         embed.add_field(name="--start [game_name]", value="Starts the specified game (only if you created it)", inline=False)
         embed.add_field(name="--delete [game_name]", value="Deletes the specified game (only if you created it)", inline=False)
         await author.send(embed=embed)
-
-    @commands.command(pass_context=True)
-    async def clear(self, ctx, amount=100):
-        if not isinstance(ctx.channel, discord.channel.DMChannel):
-            async for message in ctx.history(limit=int(amount)):
-                await message.delete()
 
 def setup(client):
     client.add_cog(MafiaBot(client))
