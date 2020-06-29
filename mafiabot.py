@@ -31,7 +31,7 @@ class MafiaBot(commands.Cog):
             game = ctx.message.content.split(" ")[1]
             open_games = GameList.instance.get_open_games()
             if game in open_games:
-                #TODO figure how to add attendees before starting
+                GameList.instance.add_attendee(game, ctx.author)
             else:
                 await ctx.send("{} is unable to join the game. Try again later.".format(ctx.message.author))
         else:

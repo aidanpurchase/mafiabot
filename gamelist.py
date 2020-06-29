@@ -33,10 +33,14 @@ class GameList:
                         [name, member.id])
         self.db.commit()
 
-    def create_attendance(self, member, game_name, role):
-        self.db.execute("""INSERT INTO attendances(playerID, gameName, condition, role) 
-                            VALUES (?, ?, 'alive', ?)""",
-                            [member.id, game_name, role])
+    def add_attendee(self, game_name, member):
+        self.db.execute("""INSERT INTO attendences(playerID, gameName, condition, role)
+                            VALUES (?, ?, 'alive', 'player')""")
+        self.db.commit()    
+
+    def assign_role(self, game_name, member, role):
+        self.db.execute("UPDATE attendences SET role=? WHERE gameName=? AND playerID=?",
+                            [role, game_name, member.id])
         self.db.commit()
 
     def close_game(self, game_name):
