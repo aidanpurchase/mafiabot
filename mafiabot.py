@@ -1,7 +1,6 @@
 import discord
 import random
 from discord.ext import commands
-from game import Game
 from gamelist import GameList
 
 role_order = ["Boss", "Inspector", "Doctor", "Drunk", "Disabler", "Bodyguard", "Stalker"]
