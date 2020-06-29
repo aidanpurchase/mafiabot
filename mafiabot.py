@@ -1,7 +1,12 @@
 import discord
+import random
 from discord.ext import commands
 from game import Game
 from gamelist import GameList
+
+role_order = ["Boss", "Inspector", "Doctor", "Drunk", "Disabler", "Bodyguard", "Stalker"]
+town_roles = ["Inspector", "Doctor", "Drunk", "Bodyguard", "Villager"]
+mafia_roles = ["Boss", "Disabler", "Stalker"]
 
 class MafiaBot(commands.Cog):
     def __init__(self, client):
@@ -53,7 +58,7 @@ class MafiaBot(commands.Cog):
                     channel = ctx.message.author.voice.channel
                     await channel.connect()
                     await ctx.send("{} has been started!!".format(game))
-                    #TODO get the game actually started
+                    await self.run(game, ctx)
                 else:
                     await ctx.send("{} doesn't have permission to start {}!".format(ctx.message.author, game))
             else:
@@ -79,9 +84,29 @@ class MafiaBot(commands.Cog):
         else:
             await ctx.send("Please join a server to use this command.")
 
+    async def run(self, game_name, ctx):
+        playerIDs = GameList.instance.get_all_IDs(game_name)
+        shuffled_IDs = random.shuffle(playerIDs)
 
-    async def run(self, game):
-        pass
+        for role_pair in set(zip(shuffled_IDs, role_order)):
+            ID, role = role_pair
+            member = ctx.message.guild.get_member(ID)
+            await member.send("You are a {}! To find out more type --help.".format(role))
+            GameList.instance.assign_role(game_name, member, role)
+        try:
+            for ID in shuffled_IDs[len(role_order):]:
+                member = ctx.message.guild.get_member(ID)
+                await member.send("You are a Villager! To find out more type --help.")
+                GameList.instance.assign_role(game_name, member, "Villager")
+        except:
+            print("No more players")
+        print("All players assigned a role")
+
+        await ctx.send("The roles are assigned! Check your DMs for your secrete mission.")
+
+        while True:
+            # The gameloop goes here
+            pass
 
     @commands.command(pass_context=True)
     async def kill(self, ctx):
