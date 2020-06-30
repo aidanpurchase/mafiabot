@@ -89,6 +89,16 @@ class GameList:
         row = results[0]
         return row[0]
 
+    def get_alive_roles(self, game_name):
+        c = self.db.cursor()
+        c.execute("SELECT role FROM attendences WHERE gameName=? AND condition='alive'", [game_name])
+        results = c.fetchall()
+
+        if len(results) < 1:
+            return None
+
+        return [role for result in results for role in result]
+
     def get_role(self, game_name, member):
         c = self.db.cursor()
         c.execute("SELECT role FROM attendances WHERE gameName=? AND playerID=?",

@@ -93,8 +93,8 @@ class MafiaBot(commands.Cog):
         try:
             for ID in shuffled_IDs[len(role_order):]:
                 member = ctx.message.guild.get_member(ID)
-                await member.send("You are a Villager! To find out more type --help.")
-                GameList.instance.assign_role(game_name, member, "Villager")
+                await member.send("You are a Townie! To find out more type --help.")
+                GameList.instance.assign_role(game_name, member, "Townie")
         except:
             print("No more players")
         print("All players assigned a role")
@@ -104,6 +104,26 @@ class MafiaBot(commands.Cog):
         while True:
             # The gameloop goes here
             pass
+    
+    def who_won(self, game_name, ctx):
+        alive_mafia = 0
+        alive_villagers = 0
+        roles = GameList.instance.get_alive_roles(game_name)
+        
+        for role in roles:
+            if role in town_roles:
+                alive_town += 1
+            elif role in mafia_roles:
+                alive_mafia += 1
+            else:
+                print("Error! Role doesn't exist.")
+
+        if alive_mafia < 1:
+            return "Town"
+        elif alive_town < 1:
+            return "Mafia"
+        else:
+            return None
 
     @commands.command(pass_context=True)
     async def kill(self, ctx):
