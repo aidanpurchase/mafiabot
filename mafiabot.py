@@ -43,7 +43,7 @@ class MafiaBot(commands.Cog):
 
     @commands.command(pass_context=True)
     async def start(self, ctx):
-        if not isinstance(ctx.channel, discord.channel.DMChannel) and ctx.message.author.voice:
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
             games = GameList.instance.get_games()
             open_games = GameList.instance.get_open_games()
@@ -54,8 +54,6 @@ class MafiaBot(commands.Cog):
                 creator = ctx.message.guild.get_member(creatorID)
                 if ctx.message.author == creator:
                     GameList.instance.close_game(game)
-                    channel = ctx.message.author.voice.channel
-                    await channel.connect()
                     await ctx.send("{} has been started!!".format(game))
                     await self.run(game, ctx)
                 else:
@@ -63,7 +61,7 @@ class MafiaBot(commands.Cog):
             else:
                 await ctx.send("{} doesn't exist!".format(game))
         else:
-            await ctx.send("Please join a server voice chat to use this command.")
+            await ctx.send("Please join a server to use this command.")
 
     @commands.command(pass_context=True)
     async def delete(self, ctx):
@@ -113,11 +111,6 @@ class MafiaBot(commands.Cog):
             print("{} killed nothing".format(ctx.message.author))
         else:
             print("{} made a big whoopsie!".format(ctx.message.author))
-
-#TODO remove these once you've sorted out vc aspect of bot
-#    @commands.command(pass_context=True)
-#    async def leave(self, ctx):
-#        await ctx.voice_client.disconnect()
 
     @commands.command(pass_context=True)
     async def help(self, ctx):
