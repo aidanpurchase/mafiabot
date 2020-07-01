@@ -43,8 +43,8 @@ class GameList:
                             [role, game_name, member.id])
         self.db.commit()
 
-    def close_game(self, game_name):
-        self.db.execute("UPDATE games SET status='closed' WHERE gameName=?", [game_name])
+    def start_game(self, game_name):
+        self.db.execute("UPDATE games SET status='running' WHERE gameName=?", [game_name])
         self.db.commit()
 
     def kill_player(self, game_name, member):
