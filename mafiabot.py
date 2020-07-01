@@ -88,12 +88,12 @@ class MafiaBot(commands.Cog):
         for role_pair in set(zip(shuffled_IDs, role_order)):
             ID, role = role_pair
             member = ctx.message.guild.get_member(ID)
-            await member.send("You are a {}! To find out more type --help.".format(role))
+            await member.send("You are a {}! To find out more type --roles.".format(role))
             GameList.instance.assign_role(game_name, member, role)
         try:
             for ID in shuffled_IDs[len(role_order):]:
                 member = ctx.message.guild.get_member(ID)
-                await member.send("You are a Townie! To find out more type --help.")
+                await member.send("You are a Townie! To find out more type --roles.")
                 GameList.instance.assign_role(game_name, member, "Townie")
         except:
             print("No more players")
@@ -137,14 +137,40 @@ class MafiaBot(commands.Cog):
         author = ctx.message.author
 
         embed = discord.Embed(
-            colour = discord.Colour.orange()
+            colour = discord.Colour.red()
         )
 
         embed.set_author(name="Help")
+        embed.add_field(name="Premise", value="""A town is terrorised by a new mafia! The mafia wish to exterminate them and clearly the town wishes the mafia were gone.
+                                                \nEach night every player goes through their special ability to achieve their 'team' goal. During the day you all discuss who to kill.
+                                                \nThe mafia are in kahoots so town folk beware you don't kill your own during the day as well! A game of pleas and lies, will you survive the night?""",
+                                    ,inline=False)
         embed.add_field(name="--create [game_name]", value="Create the specified game", inline=False)
         embed.add_field(name="--join [game_name]", value="Join the specified game", inline=False)
         embed.add_field(name="--start [game_name]", value="Starts the specified game (only if you created it)", inline=False)
         embed.add_field(name="--delete [game_name]", value="Deletes the specified game (only if you created it)", inline=False)
+        embed.add_filed(name="--roles", value="A help card explaining every role and their ability", inline=False)
+        await author.send(embed=embed)
+
+    @commands.command(pass_context=True)
+    async def roles(self, ctx):
+        author = ctx.message.author
+
+        embed = discord.Embed(
+                colour = discord.Colour.blue()
+        )
+
+        embed.set_author(name="Roles")
+        embed.set_field(name="Town Folk", inline=False)
+        embed.set_field(name="Townie", value"A innocent resident of the town you simply wish to survive the night (and the day). Don't look suspicious!", inline=False)
+        embed.set_field(name="Inspector", value="You are the town inspector tasked with identifying and removing the Mafia.\nCommand: --inspect [player]", inline=False)
+        embed.set_field(name="Doctor", value="You are the town doctor tasked with saving the town from the death.\nCommand: --save [player]", inline=False)
+        embed.set_field(name="Drunk", value="You are a simple drunk person who always foils the Mafia's plan.\nCommand: --prevent [player]", inline=False)
+        embed.set_field(name="Bodyguard", value="You were hired by the town to protect them by taking a bullet for them.\nCommand: --protect [player]", inline=False)
+        embed.set_field(name="The Mafia", inline=False)
+        embed.set_field(name="Boss", value="You are the mafia boss and thus you decide who takes the bullet every night\nCommand: --kill [player]", inline=False)
+        embed.set_field(name="Disabler", value="You are mafia hitman sent out to disable the town folk for the night\nCommand: --disable [player]", inline=False)
+        embed.set_field(name="Stalker", value="You are the town stalker sending information back to the boss about town folk\nCommand: --stalk [player]", inline=False)
         await author.send(embed=embed)
 
 def setup(client):
