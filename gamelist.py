@@ -89,6 +89,19 @@ class GameList:
         row = results[0]
         return row[0]
 
+    def get_playing_IDs(self):
+        c = self.db.cursor()
+        c.execute("""SELECT playerID 
+                    FROM attendances AS a 
+                        JOIN games AS g ON g.gameName = a.gameName
+                    WHERE g.status = 'running'""")
+        c.fetchall()
+
+        if len(results) < 1:
+            return None
+
+        return [playerID for result in results for playerID in result]
+
     def get_alive_roles(self, game_name):
         c = self.db.cursor()
         c.execute("SELECT role FROM attendences WHERE gameName=? AND condition='alive'", [game_name])
