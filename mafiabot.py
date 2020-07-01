@@ -53,7 +53,7 @@ class MafiaBot(commands.Cog):
                 creatorID = GameList.instance.get_creator(game)
                 creator = ctx.message.guild.get_member(creatorID)
                 if ctx.message.author == creator:
-                    GameList.instance.close_game(game)
+                    GameList.instance.start_game(game)
                     await ctx.send("{} has been started!!".format(game))
                     await self.run(game, ctx)
                 else:
