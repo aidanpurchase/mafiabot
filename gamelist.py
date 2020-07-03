@@ -57,6 +57,10 @@ class GameList:
         self.db.execute("DELETE FROM games WHERE gameName=?", [game_name])
         self.db.commit()
 
+    def remove_player(self, game_name, member):
+        self.db.execute("DELETE FROM attendances WHERE gameName=? AND playerID=?", [game_name, member.id])
+        self.db.commit()
+
     def get_alive_IDs(self, game_name):
         c = self.db.cursor()
         c.execute("SELECT playerID FROM attendances WHERE gameName=? AND condition='alive'",
