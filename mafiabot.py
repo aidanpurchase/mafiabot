@@ -35,7 +35,12 @@ class MafiaBot(commands.Cog):
             game = ctx.message.content.split(" ")[1]
             open_games = GameList.instance.get_open_games()
             if game in open_games:
-                GameList.instance.add_attendee(game, ctx.author)
+                game_IDs = GameList.instance.get_all_IDs(game)
+                if ctx.message.author.id not in game_IDs:
+                    GameList.instance.add_attendee(game, ctx.author)
+                    await ctx.send("{} has joined {}".format(ctx.message.author, game))
+                else:
+                    await ctx.send("{} is already a player in {}!".format(ctx.message.author, game))
             else:
                 await ctx.send("{} is unable to join the game. Try again later.".format(ctx.message.author))
         else:
@@ -63,10 +68,14 @@ class MafiaBot(commands.Cog):
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             game = ctx.message.content.split(" ")[1]
             games = GameList.instance.get_games()
-            open_games = GameList.instance.get_open_games()
+            open_games = GameList.instance.get_open_games() 
             if game in open_games:
-                await ctx.send("{} has already been started!".format(game))
-            elif game in games:
+                game_IDs = GameList.get_all_IDs(game)
+                playing_IDs = ameList.get_playing_IDs()
+                for ID in game_IDs:
+                    if ID in playing_IDs:
+                        await ctx.send("{} is already playing a game!".format(ctx.message.guild.get_member(ID)))
+                        return 
                 creatorID = GameList.instance.get_creator(game)
                 if ctx.message.author.id == creatorID:
                     GameList.instance.start_game(game)
@@ -74,6 +83,8 @@ class MafiaBot(commands.Cog):
                     await self.run(game, ctx)
                 else:
                     await ctx.send("{} does not have permission to start {}!".format(ctx.message.author, game))
+            if game in games:
+                await ctx.send("{} has already started!".format(game))
             else:
                 await ctx.send("{} does not exist!".format(game))
         else:
