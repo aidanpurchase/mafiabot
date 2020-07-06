@@ -160,6 +160,20 @@ class GameList:
 
         return [name for result in results for name in result]
 
+    def get_game(self, member):
+        c = self.db.cursor()
+        c.execute("SELECT gameName 
+                    FROM games as g
+                        JOIN attendances AS a ON a.gameName = g.gameName
+                    WHERE g.status='open' AND a.playerID=?", [member.id])
+        results = c.fetchall()
+
+        if len(results) < 1:
+            return None
+
+        row = results[0]
+        return row[0]
+
     def get_status(self, game_name):
         c = self.db.cursor()
         c.execute("SELECT status FROM games WHERE gameName=?", [game_name])
