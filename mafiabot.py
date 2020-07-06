@@ -25,7 +25,7 @@ class MafiaBot(commands.Cog):
                 await ctx.send("{} has already been created! Type '--join {}' to join the game.".format(game, game))
             else:
             `   GameList.instance.create_game(game, ctx.author)
-                await ctx.send("{} has been created by {}! Type '--join {}' to join the game.".format(game, ctx.message.author, game))
+                await ctx.send("{} has been created by {}! Type '--join {}' to join the game.".format(game, ctx.author, game))
         else:
             await ctx.send("Please join a server to use this command.")
 
@@ -36,13 +36,13 @@ class MafiaBot(commands.Cog):
             open_games = GameList.instance.get_open_games()
             if game in open_games:
                 game_IDs = GameList.instance.get_all_IDs(game)
-                if ctx.message.author.id not in game_IDs:
+                if ctx.author.id not in game_IDs:
                     GameList.instance.add_attendee(game, ctx.author)
-                    await ctx.send("{} has joined {}".format(ctx.message.author, game))
+                    await ctx.send("{} has joined {}".format(ctx.author, game))
                 else:
-                    await ctx.send("{} is already a player in {}!".format(ctx.message.author, game))
+                    await ctx.send("{} is already a player in {}!".format(ctx.author, game))
             else:
-                await ctx.send("{} is unable to join the game. Try again later.".format(ctx.message.author))
+                await ctx.send("{} is unable to join the game. Try again later.".format(ctx.author))
         else:
             await ctx.send("Please join a server to use this command.")
 
@@ -53,11 +53,11 @@ class MafiaBot(commands.Cog):
             games = GameList.instance.get_games()
             if game in games:
                 gameIDs = GameList.instance.get_all_IDs(game)
-                if ctx.message.author.id in gameIDs:
-                    GameList.instance.remove_player(game, ctx.message.author)
-                    await ctx.send("{} has left {}. Type '--join {}' to rejoin the game.".format(ctx.message.author, game, game))
+                if ctx.author.id in gameIDs:
+                    GameList.instance.remove_player(game, ctx.author)
+                    await ctx.send("{} has left {}. Type '--join {}' to rejoin the game.".format(ctx.author, game, game))
                 else:
-                    await ctx.send("{} is not a member. Type '--join {}' to join the game.".format(ctx.message.author, game))
+                    await ctx.send("{} is not a member. Type '--join {}' to join the game.".format(ctx.author, game))
             else:
                 await ctx.send("{} does not exist!".format(game))
         else:
@@ -77,12 +77,12 @@ class MafiaBot(commands.Cog):
                         await ctx.send("{} is already playing a game!".format(ctx.message.guild.get_member(ID)))
                         return 
                 creatorID = GameList.instance.get_creator(game)
-                if ctx.message.author.id == creatorID:
+                if ctx.author.id == creatorID:
                     GameList.instance.start_game(game)
                     await ctx.send("{} has been started!!".format(game))
                     await self.run(game, ctx)
                 else:
-                    await ctx.send("{} does not have permission to start {}!".format(ctx.message.author, game))
+                    await ctx.send("{} does not have permission to start {}!".format(ctx.author, game))
             if game in games:
                 await ctx.send("{} has already started!".format(game))
             else:
@@ -97,11 +97,11 @@ class MafiaBot(commands.Cog):
             games = GameList.instance.get_games()
             if game in games:
                 creatorID = GameList.instance.get_creator(game)
-                if ctx.message.author.id == creatorID:
+                if ctx.author.id == creatorID:
                     GameList.instance.delete_game(game)
                     await ctx.send("{} was been deleted!".format(game))
                 else:
-                    await ctx.send("{} does not have permission to delete {}".format(ctx.message.author, game))
+                    await ctx.send("{} does not have permission to delete {}".format(ctx.author, game))
             else:
                 await ctx.send("{} does not exist!".format(game))
         else:
@@ -154,9 +154,9 @@ class MafiaBot(commands.Cog):
     @commands.command(pass_context=True)
     async def kill(self, ctx):
         if isinstance(ctx.channel, discord.channel.DMChannel):
-            if ctx.message.author.id is in GameList.instance.get_playing_IDs():
-                if GameList.instance.get_role(ctx.message.author.id) == "Boss":
-                    game_name = GameList.instance.get_game(ctx.message.author)
+            if ctx.author.id is in GameList.instance.get_playing_IDs():
+                if GameList.instance.get_role(ctx.author.id) == "Boss":
+                    game_name = GameList.instance.get_game(ctx.author)
                     try:
                         target = ctx.message.mentions.users.first()
                     except:
@@ -176,7 +176,7 @@ class MafiaBot(commands.Cog):
 
     @commands.command(pass_context=True)
     async def help(self, ctx):
-        author = ctx.message.author
+        author = ctx.author
 
         embed = discord.Embed(
             colour = discord.Colour.red()
@@ -196,7 +196,7 @@ class MafiaBot(commands.Cog):
 
     @commands.command(pass_context=True)
     async def roles(self, ctx):
-        author = ctx.message.author
+        author = ctx.author
 
         embed = discord.Embed(
                 colour = discord.Colour.blue()
