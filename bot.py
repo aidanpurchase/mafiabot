@@ -5,7 +5,7 @@ import os
 TOKEN = os.getenv("TOKEN")
 bot = commands.Bot(command_prefix = "--")
 bot.remove_command("help")
-extensions = ["mafiabot"]
+extensions = ["mafiabot", "mafiacommands"]
 
 @bot.event
 async def on_ready():
